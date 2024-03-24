@@ -74,13 +74,18 @@ WSGI_APPLICATION = 'text_converter.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 DATABASES = {
     'default': {
         'HOST': '127.0.0.1',
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'text_converter_db',
         'USER': 'postgres',
-        'PASSWORD': 'coderslab',
+        'PASSWORD': os.getenv('DATABASE_PASS'),
     }
 }
 
