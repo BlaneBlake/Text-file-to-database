@@ -23,9 +23,9 @@ class TestFormView(FormView):
     def post(self, request):
         form = self.form_class(request.POST)
         if form.is_valid():
-            with open('text_from_form.py', 'w') as file_to_convert:
-                file_to_convert.write('test')
+            with open('AI_text_converter/text_from_form.py', 'wt') as file_to_convert:
+                file_to_convert.write(form.cleaned_data['text'])
                 file_to_convert.close()
-            return HttpResponse(f"Data submitted successfully: {form.cleaned_data}")
+            return HttpResponse(f"Data submitted successfully: {form.cleaned_data['text']}")
         else:
             return render(request, self.template_name, {'form': form})
