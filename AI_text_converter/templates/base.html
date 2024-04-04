@@ -1,0 +1,35 @@
+<!--ver 1-->
+<!--<!doctype html>-->
+<!--        <html>-->
+<!--            <head><meta charset="utf-8"></head>-->
+<!--            <body>-->
+<!--                <h1>Szkoła podstawowa nr 1 im. Chucka Norrisa.</h1>-->
+<!--                <h2>Klasy:</h2>-->
+<!--                <ul>-->
+<!--                    {%  for class in classes  %}-->
+<!--                        <li><a href='/class/{{  class.0   }}}'>{{   class.1    }}</a></li>-->
+<!--                    {%  endfor %}-->
+<!--                </ul>-->
+<!--            </body>-->
+<!--        </html>-->
+
+<!--ver 2-->
+{% load static %}
+<!doctype html>
+<html>
+    <head><meta charset="utf-8"></head>
+    <body>
+        {% block header %}
+
+        {% endblock %}
+        <h1>Converter .txt to database</h1>
+        {% block content %}
+
+        {% endblock %}
+
+
+
+
+<!--    <script src="{% static 'js/app.js' %}"></script>-->
+    </body>
+</html>

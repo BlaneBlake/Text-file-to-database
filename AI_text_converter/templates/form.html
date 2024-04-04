@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<form action="" method="post">
+    {% csrf_token %}
+{#    .as_p konwertuje pola formularza na paragrafy   #}
+    {{ form.as_p }} 
+    <input type="submit" value="Wyślij">
+</form>
+{% endblock %}
