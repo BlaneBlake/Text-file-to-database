@@ -1,4 +1,6 @@
 import os
+from ast import literal_eval
+
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.generic import FormView
@@ -10,6 +12,9 @@ from django.core.files.base import ContentFile
 
 from openai import OpenAI
 from dotenv import load_dotenv
+
+from .models import Hours
+
 
 # Create your views here.
 
@@ -31,8 +36,8 @@ class TestFormView(FormView):
         if form.is_valid():
 
             command = (
-                'Znajdź w poniższym tekście daty i godziny. zwróć je w formacie:\n'
-                '"[[{date: YYYY-MM-DD}, {start time: hh:mm}, {end time: hh:mm}, {description: description-text}], ...]". \n'
+                'Znajdź w poniższym tekście daty i godziny. zwróć je w formacie listy list:\n'
+                '[["YYYY-MM-DD","start_time", "end_time", "description-text"] ].'
 
             )
 # Upload text
@@ -65,13 +70,24 @@ class TestFormView(FormView):
                 temperature=1
             )
 
-            print(result.choices[0].text)
+
+# database
+            data = result.choices[0].text
+            print(data)
+            arr_data = literal_eval(data)
+            print(arr_data)
+            print(type(data), type(arr_data))
+            for element in arr_data:
+                print(element)
+                database_object = Hours.objects.create(date=element[0], start_time=element[1], end_time=element[2],
+                                     description=element[3])
 
             return HttpResponse(f"<p>Data submitted successfully!</p>"
                                 f"<p>textarea: {form.cleaned_data['text']}</p>"
                                 f"<p>file: {form.cleaned_data['file']}</p>"
                                 f"<p>{command}</p>"
-                                f"<p>{result.choices[0].text}</p>"
+                                f"<p>text: {data}</p>"
+                                f"<p>lista: {arr_data}</p>"
                                 )
         else:
             return render(request, self.template_name, {'form': form})
