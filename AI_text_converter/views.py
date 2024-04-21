@@ -27,10 +27,9 @@ class TestFormView(FormView):
         form = self.form_class(request.POST, request.FILES)  # sprawdzić files uploads
         if form.is_valid():
 
-            print(form.cleaned_data)
             command = (
-                'Znajdź w poniższym tekście daty i godziny. zwróć je w formacie:'
-                '"date: dd-mm-yyyy, start time: hh:mm, end time: hh:mm, description: description-text". '
+                'Znajdź w poniższym tekście daty i godziny. zwróć je w formacie:\n'
+                '"date: dd-mm-yyyy, start time: hh:mm, end time: hh:mm, description: description-text". \n'
                 )
 
             with open('AI_text_converter/text_from_form.txt', 'wt') as file_to_convert:
@@ -38,7 +37,8 @@ class TestFormView(FormView):
                 file_to_convert.close()
 
             file = open('AI_text_converter/text_from_form.txt', 'r')
-            command += '<br>'.join(file.readlines())  # łamanie linii w html to <br>. text komendy do ai podać bez htmla
+            command += ''.join(file.readlines())
+            command += '\n'
 
             if form.cleaned_data['file'] is not None:
                 uploaded_file = request.FILES["file"]
@@ -47,7 +47,9 @@ class TestFormView(FormView):
                 default_storage.save('AI_text_converter/file_from_form.txt', ContentFile(uploaded_file.read()))
 
                 file = open('AI_text_converter/file_from_form.txt', 'r')
-                command += '<br>'.join(file.readlines())   # text komendy do ai podać bez htmla
+                command += ''.join(file.readlines())   # text komendy do ai podać bez htmla
+
+            print(command)
 
             return HttpResponse(f"<p>Data submitted successfully!</p>"
                                 f"<p>textarea: {form.cleaned_data['text']}</p>"
