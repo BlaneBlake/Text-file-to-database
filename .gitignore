@@ -62,6 +62,11 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 
+# Apliocation
+file_from_form.txt
+text_from_form.txt
+training_place.py
+
 # Flask stuff:
 instance/
 .webassets-cache
