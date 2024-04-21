@@ -8,6 +8,9 @@ from .forms import TextToConvertForm
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 
+from openai import OpenAI
+from dotenv import load_dotenv
+
 # Create your views here.
 
 
@@ -29,9 +32,10 @@ class TestFormView(FormView):
 
             command = (
                 'Znajdź w poniższym tekście daty i godziny. zwróć je w formacie:\n'
-                '"date: dd-mm-yyyy, start time: hh:mm, end time: hh:mm, description: description-text". \n'
-                )
+                '"[[{date: YYYY-MM-DD}, {start time: hh:mm}, {end time: hh:mm}, {description: description-text}], ...]". \n'
 
+            )
+# Upload text
             with open('AI_text_converter/text_from_form.txt', 'wt') as file_to_convert:
                 file_to_convert.write(form.cleaned_data['text'])
                 file_to_convert.close()
@@ -39,7 +43,7 @@ class TestFormView(FormView):
             file = open('AI_text_converter/text_from_form.txt', 'r')
             command += ''.join(file.readlines())
             command += '\n'
-
+# Upload file
             if form.cleaned_data['file'] is not None:
                 uploaded_file = request.FILES["file"]
                 if os.path.exists('AI_text_converter/file_from_form.txt'):
@@ -49,11 +53,25 @@ class TestFormView(FormView):
                 file = open('AI_text_converter/file_from_form.txt', 'r')
                 command += ''.join(file.readlines())   # text komendy do ai podać bez htmla
 
-            print(command)
+
+# AI
+            load_dotenv()
+            client = OpenAI()
+
+            result = client.completions.create(
+                model='gpt-3.5-turbo-instruct',
+                prompt=command,
+                max_tokens=1000,
+                temperature=1
+            )
+
+            print(result.choices[0].text)
 
             return HttpResponse(f"<p>Data submitted successfully!</p>"
                                 f"<p>textarea: {form.cleaned_data['text']}</p>"
                                 f"<p>file: {form.cleaned_data['file']}</p>"
-                                f"<p>{command}</p>")
+                                f"<p>{command}</p>"
+                                f"<p>{result.choices[0].text}</p>"
+                                )
         else:
             return render(request, self.template_name, {'form': form})
