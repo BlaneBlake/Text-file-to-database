@@ -67,27 +67,21 @@ class TestFormView(FormView):
                 model='gpt-3.5-turbo-instruct',
                 prompt=command,
                 max_tokens=1000,
-                temperature=1
+                temperature=0.5
             )
 
 
 # database
             data = result.choices[0].text
-            print(data)
             arr_data = literal_eval(data)
-            print(arr_data)
-            print(type(data), type(arr_data))
+
             for element in arr_data:
                 print(element)
                 database_object = Hours.objects.create(date=element[0], start_time=element[1], end_time=element[2],
                                      description=element[3])
 
-            return HttpResponse(f"<p>Data submitted successfully!</p>"
-                                f"<p>textarea: {form.cleaned_data['text']}</p>"
-                                f"<p>file: {form.cleaned_data['file']}</p>"
-                                f"<p>{command}</p>"
-                                f"<p>text: {data}</p>"
-                                f"<p>lista: {arr_data}</p>"
-                                )
+            database = Hours.objects.all()
+
+            return render(request, 'database-result.html', {"database":database})
         else:
             return render(request, self.template_name, {'form': form})

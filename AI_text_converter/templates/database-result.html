@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Baza zaktualizowana</h1>
+{% for data in database %}
+    <li>Data: {{ data.date }}, czas rozpoczęcia: {{ data.start_time }}, czas zakończenia: {{ data.end_time }}, opis: {{ data.description }}</li>
+{% endfor %}
+{% endblock %}
