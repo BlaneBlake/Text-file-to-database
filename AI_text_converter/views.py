@@ -5,12 +5,15 @@ from django.views.generic import FormView
 
 from .forms import TextToConvertForm
 
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 
 # Create your views here.
 
 
 def test(reqest):
     return HttpResponse("działam")
+
 
 class TestFormView(FormView):
     form_class = TextToConvertForm
@@ -21,11 +24,34 @@ class TestFormView(FormView):
         return render(request, self.template_name, {'form': form})
 
     def post(self, request):
-        form = self.form_class(request.POST)
+        form = self.form_class(request.POST, request.FILES)  # sprawdzić files uploads
         if form.is_valid():
-            with open('AI_text_converter/text_from_form.py', 'wt') as file_to_convert:
+
+            print(form.cleaned_data)
+            command = (
+                'Znajdź w poniższym tekście daty i godziny. zwróć je w formacie:'
+                '"date: dd-mm-yyyy, start time: hh:mm, end time: hh:mm, description: description-text". '
+                )
+
+            with open('AI_text_converter/text_from_form.txt', 'wt') as file_to_convert:
                 file_to_convert.write(form.cleaned_data['text'])
                 file_to_convert.close()
-            return HttpResponse(f"Data submitted successfully: {form.cleaned_data['text']}")
+
+            file = open('AI_text_converter/text_from_form.txt', 'r')
+            command += '<br>'.join(file.readlines())  # łamanie linii w html to <br>. text komendy do ai podać bez htmla
+
+            if form.cleaned_data['file'] is not None:
+                uploaded_file = request.FILES["file"]
+                if os.path.exists('AI_text_converter/file_from_form.txt'):
+                    os.remove('AI_text_converter/file_from_form.txt')
+                default_storage.save('AI_text_converter/file_from_form.txt', ContentFile(uploaded_file.read()))
+
+                file = open('AI_text_converter/file_from_form.txt', 'r')
+                command += '<br>'.join(file.readlines())   # text komendy do ai podać bez htmla
+
+            return HttpResponse(f"<p>Data submitted successfully!</p>"
+                                f"<p>textarea: {form.cleaned_data['text']}</p>"
+                                f"<p>file: {form.cleaned_data['file']}</p>"
+                                f"<p>{command}</p>")
         else:
             return render(request, self.template_name, {'form': form})
