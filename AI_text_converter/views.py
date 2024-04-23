@@ -28,27 +28,25 @@ class DataUploadFormView(FormView):
     form_class = TextToConvertForm
     template_name = 'form.html'
 
-    def get(self, request):
+    def get(self, request, **kwargs):
         form = self.form_class()
         return render(request, self.template_name, {'form': form})
 
-    def post(self, request):
+    def post(self, request, **kwargs):
         form = self.form_class(request.POST, request.FILES)  # sprawdzić files uploads
         if form.is_valid():
 
-
-# Upload text
+            # Upload text
             with open('AI_text_converter/text_from_form.txt', 'wt') as file_to_convert:
                 file_to_convert.write(form.cleaned_data['text'])
                 file_to_convert.close()
 
-# Upload file
+            # Upload file
             if form.cleaned_data['file'] is not None:
                 uploaded_file = request.FILES["file"]
                 if os.path.exists('AI_text_converter/file_from_form.txt'):
                     os.remove('AI_text_converter/file_from_form.txt')
                 default_storage.save('AI_text_converter/file_from_form.txt', ContentFile(uploaded_file.read()))
-
 
             return HttpResponse('Files successfully uploaded')
         else:
@@ -57,7 +55,7 @@ class DataUploadFormView(FormView):
 
 # Create prompt and convert datafiles
 class ConvertFormView(FormView):
-    def get(self, request):
+    def get(self, request, **kwargs):
 
         # Create prompt
         command = (
