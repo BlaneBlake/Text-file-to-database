@@ -3,7 +3,7 @@ from ast import literal_eval
 
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.views.generic import FormView
+from django.views.generic import FormView, View
 
 from .forms import TextToConvertForm
 
@@ -12,6 +12,7 @@ from django.core.files.base import ContentFile
 
 from openai import OpenAI
 from dotenv import load_dotenv
+from matplotlib import pyplot
 
 from .models import Hours
 
@@ -54,13 +55,13 @@ class DataUploadFormView(FormView):
 
 
 # Create prompt and convert datafiles
-class ConvertFormView(FormView):
+class ConvertView(View):
     def get(self, request, **kwargs):
 
         # Create prompt
         command = (
             'Znajdź w poniższym tekście daty i godziny. zwróć je w formacie listy list:\n'
-            '[["YYYY-MM-DD","start_time", "end_time", "description-text"] ].'
+            '[["YYYY-MM-DD","start_time HH:MM", "end_time HH:MM", "description-text"] ].'
 
         )
 
@@ -95,3 +96,44 @@ class ConvertFormView(FormView):
 
         database = Hours.objects.all()
         return render(request, 'database-result.html', {"database": database})
+
+
+# Generate chart
+def generate_chart():
+
+    database = Hours.objects.all()
+    dates = []
+    start_times = []
+    end_times = []
+
+    for element in database:
+        dates.append(element.date)
+        start_times.append((element.start_time.hour * 60 + element.start_time.minute) / 60)
+        end_times.append((element.end_time.hour * 60 + element.end_time.minute) / 60)
+
+# Dane wykresu
+    pyplot.plot(dates, start_times, label='Start Time')
+    pyplot.plot(dates, end_times, label='End Time')
+# Nazwy osi
+    pyplot.xlabel('Date')
+    pyplot.ylabel('Time')
+# Tytuł wykresu
+    pyplot.title('Event Timeline')
+# Legenda danych
+    pyplot.legend()
+
+# Zapis obrazu na wybranej ścieżce
+    chart_path = 'AI_text_converter/static/images/chart.png'
+    pyplot.savefig(chart_path)
+
+    return chart_path
+
+# Chart view
+class ChartsView(View):
+    def get(self, request, **kwargs):
+
+        if os.path.exists('AI_text_converter/static/images/chart.png'):
+            os.remove('AI_text_converter/static/images/chart.png')
+
+        chart_path = generate_chart()
+        return render(request, 'chart.html', {'chart_path': chart_path})
