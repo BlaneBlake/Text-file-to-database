@@ -1,8 +1,8 @@
 import os
 from ast import literal_eval
 
-from django.http import HttpResponse
-from django.shortcuts import render
+from django.http import HttpResponse, FileResponse
+from django.shortcuts import render, redirect
 from django.views.generic import FormView, View
 
 from .forms import TextToConvertForm
@@ -13,6 +13,7 @@ from django.core.files.base import ContentFile
 from openai import OpenAI
 from dotenv import load_dotenv
 from matplotlib import pyplot
+from weasyprint import HTML
 
 from .models import Hours
 
@@ -137,3 +138,21 @@ class ChartsView(View):
 
         chart_path = generate_chart()
         return render(request, 'chart.html', {'chart_path': chart_path})
+
+
+# Generate & download PDF
+class PDFGeneratorView(View):
+    def get(self, request, **kwargs):
+
+        chart_path = 'AI_text_converter/static/images/chart.png'
+        chart_view_url = "http://127.0.0.1:8000/converter/charts/"
+        pdf_path = 'AI_text_converter/static/pdf/chart.pdf'
+
+        if os.path.exists(chart_path):
+            HTML(url=chart_view_url).write_pdf(pdf_path)
+            if os.path.exists(pdf_path):
+                return FileResponse(open(pdf_path, 'rb'), as_attachment=True)
+            else:
+                return HttpResponse('File not found', status=404)
+        else:
+            return redirect('charts')

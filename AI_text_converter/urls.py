@@ -15,11 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from .views import (test, DataUploadFormView, ConvertView, ChartsView)
+from .views import (test, DataUploadFormView, ConvertView, ChartsView,
+                    PDFGeneratorView)
 
 urlpatterns = [
     path('test/', test, name='test'),
     path('data-upload-form/', DataUploadFormView.as_view(), name='upload-form'),
     path('convert-data', ConvertView.as_view(), name='convert-data'),
-    path('charts/', ChartsView.as_view(), name='charts')
+    path('charts/', ChartsView.as_view(), name='charts'),
+    path('pdf/', PDFGeneratorView.as_view(), name='pdf'),
     ]
