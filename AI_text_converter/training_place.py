@@ -1,41 +1,28 @@
-from openai import OpenAI
-from dotenv import load_dotenv
-
-
-
-load_dotenv()
-
-client = OpenAI()
-
-text_to_convert = '''                
-27-04-2022 08.10-17.00 1 zjazd 1.5 szyby
-28-04-2022 08.30-16.30 1 zjazd 2 szyby do 6p
-29-04-2022 09.00-17.00 1 zjazd 2 szyby
-
-04-05-2022 08.30-16.15 3 zjazdy garaże 1 na łącznik
-05-05-2022 08.30-17.30 1 zjazd na wnękę
-06-05-2022 09.00-15.30 1 zjazd 2 szyby południową ściana
-07-05-2022 09.30-17.30 1 zjazd 2 szyby
-                '''
-command = (
-                'Znajdź w poniższym tekście daty i godziny. zwróć je w formacie:\n'
-                '"[[{date: dd-mm-yyyy}, {start time: hh:mm}, {end time: hh:mm}, {description: description-text}], ...]". \n'
-
-            )
-command += text_to_convert
-
-
-print(command)
-
-result = client.completions.create(
-    model='gpt-3.5-turbo-instruct',
-    prompt=command,
-    max_tokens=1000,
-    temperature=1
-)
-
-print(result.choices[0].text)
-
-print(result)
-
-
+# import matplotlib.pyplot as plt
+# from datetime import datetime,timedelta
+#
+# # Dane
+# dates = ['2024-04-01', '2024-04-02', '2024-04-03']
+# start_times = [8, 9, 10]
+# end_times = [16, 17, 18]
+#
+# # Konwersja łańcuchów dat na obiekty datetime
+# dates = [datetime.strptime(date, '%Y-%m-%d') for date in dates]
+#
+# # Szerokość słupków
+# bar_width_start = 0.10
+# bar_width_end = 0.35
+#
+# # Tworzenie wykresu słupkowego
+#
+# plt.bar(dates, end_times, width=bar_width_end, label='End Time')  # Przesunięcie słupków o bar_width
+# plt.bar(dates, start_times, width=bar_width_start, label='Start Time')
+# # Ustawienie etykiet i tytułu
+# plt.xlabel('Date')
+# plt.ylabel('Time')
+# plt.title('Event Timeline')
+# plt.xticks(dates, [date.strftime('%Y-%m-%d') for date in dates])  # Ustawienie etykiet osi x w formacie daty
+# plt.legend()
+#
+# # Wyświetlenie wykresu
+# plt.show()
