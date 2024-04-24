@@ -115,6 +115,8 @@ def generate_chart():
 # Dane wykresu
     pyplot.bar(dates, start_times, label='Start Time', alpha=0.5, color='blue')
     pyplot.bar(dates, end_times, label='End Time', alpha=0.5, color='red')
+# Rotacja nazw o 90 stopni
+    pyplot.xticks(rotation=90)
 # Nazwy osi
     pyplot.xlabel('Date')
     pyplot.ylabel('Time')
@@ -145,9 +147,7 @@ class PDFGeneratorView(View):
     def get(self, request, **kwargs):
 
         chart_path = 'AI_text_converter/static/images/chart.png'
-        # chart_view_url = "http://127.0.0.1:8000/converter/charts/"
-        from django.template.loader import render_to_string
-        chart_view_url = render_to_string('AI_text_converter/static/images/chart.png')
+        chart_view_url = "http://127.0.0.1:8000/converter/charts/"
         pdf_path = 'AI_text_converter/static/pdf/chart.pdf'
 
         if os.path.exists(chart_path):
