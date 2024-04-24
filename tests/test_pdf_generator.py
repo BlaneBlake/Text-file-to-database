@@ -2,6 +2,7 @@ import os
 from django.urls import reverse
 import pytest
 
+
 @pytest.mark.django_db
 def test_pdf_generator_view(client):
 
