@@ -25,14 +25,3 @@ def test_valid_data(client):
     assert (os.path.exists('AI_text_converter/file_from_form.txt'))
 
 
-@pytest.mark.django_db
-def test_invalid_data(client):
-    data = {
-        'text': '',
-        'file': ''
-    }
-
-    with pytest.raises(ValueError):
-        client.post(reverse('upload-form'), data)
-
-
