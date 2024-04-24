@@ -113,8 +113,10 @@ def generate_chart():
         end_times.append((element.end_time.hour * 60 + element.end_time.minute) / 60)
 
 # Dane wykresu
-    pyplot.plot(dates, start_times, label='Start Time')
-    pyplot.plot(dates, end_times, label='End Time')
+    pyplot.bar(dates, start_times, label='Start Time', alpha=0.5, color='blue')
+    pyplot.bar(dates, end_times, label='End Time', alpha=0.5, color='red')
+# Rotacja nazw o 90 stopni
+    pyplot.xticks(rotation=90)
 # Nazwy osi
     pyplot.xlabel('Date')
     pyplot.ylabel('Time')
