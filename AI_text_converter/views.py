@@ -42,22 +42,23 @@ class DataUploadFormView(FormView):
 
     def post(self, request, **kwargs):
         form = self.form_class(request.POST, request.FILES)  # sprawdzić files uploads
-        if form.is_valid():
+        try:
+            if form.is_valid():
 
-            # Upload text
-            with open('AI_text_converter/text_from_form.txt', 'wt') as file_to_convert:
-                file_to_convert.write(form.cleaned_data['text'])
-                file_to_convert.close()
+                # Upload text
+                with open('AI_text_converter/text_from_form.txt', 'wt') as file_to_convert:
+                    file_to_convert.write(form.cleaned_data['text'])
+                    file_to_convert.close()
 
-            # Upload file
-            if form.cleaned_data['file'] is not None:
-                uploaded_file = request.FILES["file"]
-                if os.path.exists('AI_text_converter/file_from_form.txt'):
-                    os.remove('AI_text_converter/file_from_form.txt')
-                default_storage.save('AI_text_converter/file_from_form.txt', ContentFile(uploaded_file.read()))
+                # Upload file
+                if form.cleaned_data['file'] is not None:
+                    uploaded_file = request.FILES["file"]
+                    if os.path.exists('AI_text_converter/file_from_form.txt'):
+                        os.remove('AI_text_converter/file_from_form.txt')
+                    default_storage.save('AI_text_converter/file_from_form.txt', ContentFile(uploaded_file.read()))
 
-            return HttpResponse('Files successfully uploaded')
-        else:
+                return HttpResponse('Files successfully uploaded')
+        except ValueError:
             return render(request, self.template_name, {'form': form})
 
 
@@ -151,8 +152,6 @@ class ChartsView(View):
 # Generate & download PDF
 class PDFGeneratorView(View):
     def get(self, request, **kwargs):
-
-
 
         chart_path = 'AI_text_converter/static/images/chart.png'
         pdf_path = 'AI_text_converter/static/pdf/chart.pdf'
