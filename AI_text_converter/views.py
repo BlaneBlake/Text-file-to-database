@@ -102,6 +102,9 @@ class ConvertView(View):
 # Generate chart
 def generate_chart():
 
+    # Czyści bieżący wykres
+    pyplot.clf()
+
     database = Hours.objects.all()
     dates = []
     start_times = []
@@ -114,7 +117,7 @@ def generate_chart():
 
 # Dane wykresu
     pyplot.bar(dates, start_times, label='Start Time', alpha=0.5, color='blue')
-    pyplot.bar(dates, end_times, label='End Time', alpha=0.5, color='red')
+    pyplot.bar(dates, end_times, bottom=start_times, label='End Time', alpha=0.5, color='red')
 # Rotacja nazw o 90 stopni
     pyplot.xticks(rotation=90)
 # Nazwy osi
@@ -134,9 +137,6 @@ def generate_chart():
 # Chart view
 class ChartsView(View):
     def get(self, request, **kwargs):
-
-        if os.path.exists('AI_text_converter/static/images/chart.png'):
-            os.remove('AI_text_converter/static/images/chart.png')
 
         chart_path = generate_chart()
         return render(request, 'chart.html', {'chart_path': chart_path})
