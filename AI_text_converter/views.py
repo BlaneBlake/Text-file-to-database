@@ -1,28 +1,34 @@
 import os
 from ast import literal_eval
 
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, FileResponse
 from django.shortcuts import render, redirect
-from django.views.generic import FormView, View
 
-from .forms import TextToConvertForm
-
+from django.views.generic import FormView, View, ListView, RedirectView
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.urls import reverse_lazy
 
 from openai import OpenAI
 from dotenv import load_dotenv
 from matplotlib import pyplot
 from weasyprint import HTML
 
+from .forms import TextToConvertForm, MyUserCreationForm, LoginForm
 from .models import Hours
 
+load_dotenv()
 
 # Create your views here.
 
 
-def test(reqest):
-    return HttpResponse("działam")
+# HomePage with Login required mixin (zezwala na dostęp tylko zalogowanego użytkownika)
+class HomePageView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'home_page.html')
 
 
 # Uploaded data to covert
@@ -76,7 +82,6 @@ class ConvertView(View):
         file.close()
 
         # AI
-        load_dotenv()
         client = OpenAI()
 
         result = client.completions.create(
@@ -134,6 +139,7 @@ def generate_chart():
 
     return chart_path
 
+
 # Chart view
 class ChartsView(View):
     def get(self, request, **kwargs):
@@ -146,9 +152,11 @@ class ChartsView(View):
 class PDFGeneratorView(View):
     def get(self, request, **kwargs):
 
+
+
         chart_path = 'AI_text_converter/static/images/chart.png'
-        chart_view_url = "http://127.0.0.1:8000/converter/charts/"
         pdf_path = 'AI_text_converter/static/pdf/chart.pdf'
+        chart_view_url = os.getenv('HOME_URL') + "converter/charts/"
 
         if os.path.exists(chart_path):
             HTML(url=chart_view_url).write_pdf(pdf_path)
@@ -158,3 +166,46 @@ class PDFGeneratorView(View):
                 return HttpResponse('File not found', status=404)
         else:
             return redirect('charts')
+
+
+# See users list
+class UserListView(ListView):
+    model = User
+    template_name = 'user_list.html'
+    context_object_name = 'users'
+
+
+# Login
+class LoginView(FormView):
+    template_name = 'login_form.html'
+    form_class = LoginForm
+    success_url = reverse_lazy('home')
+
+    def form_valid(self, form):
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            login(self.request, user)
+            return super().form_valid(form)
+        else:
+            return render(self.request, self.template_name, {'form': form, 'error_message':'Błąd logowania' })
+
+
+# Logout
+class LogoutView(RedirectView):
+    url = reverse_lazy('login')
+
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return super().get(request, *args, **kwargs)
+
+# Sign up
+class AddUserView(FormView):
+    form_class = MyUserCreationForm
+    template_name = 'form.html'
+    success_url = reverse_lazy('list_users')
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
