@@ -1,28 +1,26 @@
 import os
 from ast import literal_eval
 
+from django.contrib.auth.models import User
 from django.http import HttpResponse, FileResponse
 from django.shortcuts import render, redirect
-from django.views.generic import FormView, View
-
-from .forms import TextToConvertForm
-
+from django.template.loader import render_to_string
+from django.views.generic import FormView, View, ListView
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.urls import reverse_lazy
 
 from openai import OpenAI
 from dotenv import load_dotenv
 from matplotlib import pyplot
 from weasyprint import HTML
 
+from .forms import TextToConvertForm, MyUserCreationForm
 from .models import Hours
 
+load_dotenv()
 
 # Create your views here.
-
-
-def test(reqest):
-    return HttpResponse("działam")
 
 
 # Uploaded data to covert
@@ -76,7 +74,6 @@ class ConvertView(View):
         file.close()
 
         # AI
-        load_dotenv()
         client = OpenAI()
 
         result = client.completions.create(
@@ -146,9 +143,11 @@ class ChartsView(View):
 class PDFGeneratorView(View):
     def get(self, request, **kwargs):
 
+
+
         chart_path = 'AI_text_converter/static/images/chart.png'
-        chart_view_url = "http://127.0.0.1:8000/converter/charts/"
         pdf_path = 'AI_text_converter/static/pdf/chart.pdf'
+        chart_view_url = os.getenv('HOME_URL') + "converter/charts/"
 
         if os.path.exists(chart_path):
             HTML(url=chart_view_url).write_pdf(pdf_path)
@@ -158,3 +157,19 @@ class PDFGeneratorView(View):
                 return HttpResponse('File not found', status=404)
         else:
             return redirect('charts')
+
+
+
+class UserListView(ListView):
+    model = User
+    template_name = 'user_list.html'
+    context_object_name = 'users'
+
+class AddUserView(FormView):
+    form_class = MyUserCreationForm
+    template_name = 'form.html'
+    success_url = reverse_lazy('list_users')
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)

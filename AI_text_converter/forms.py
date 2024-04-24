@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.forms import UserCreationForm
 # from django.contrib.auth.forms import UserCreationForm
 
 # from .models import
@@ -17,3 +18,7 @@ class TextToConvertForm(forms.Form):
 
         if not text and not file:
             raise ValueError('wypełnij jedno z pól')
+
+class MyUserCreationForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
+        fields = UserCreationForm.Meta.fields + ('username', 'email')
