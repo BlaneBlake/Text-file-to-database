@@ -1,15 +1,16 @@
 import os
 from ast import literal_eval
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, FileResponse
 from django.shortcuts import render, redirect
-from django.template.loader import render_to_string
-from django.views.generic import FormView, View, ListView, RedirectView, TemplateView
+
+from django.views.generic import FormView, View, ListView, RedirectView
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
 
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -24,9 +25,11 @@ load_dotenv()
 # Create your views here.
 
 
-class HomePageView(TemplateView):
+# HomePage with Login required mixin (zezwala na dostęp tylko zalogowanego użytkownika)
+class HomePageView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         return render(request, 'home_page.html')
+
 
 # Uploaded data to covert
 class DataUploadFormView(FormView):
