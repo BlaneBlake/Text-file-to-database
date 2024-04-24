@@ -152,8 +152,6 @@ class ChartsView(View):
 class PDFGeneratorView(View):
     def get(self, request, **kwargs):
 
-
-
         chart_path = 'AI_text_converter/static/images/chart.png'
         pdf_path = 'AI_text_converter/static/pdf/chart.pdf'
         chart_view_url = os.getenv('HOME_URL') + "converter/charts/"
